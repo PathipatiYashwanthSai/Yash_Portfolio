@@ -8,6 +8,17 @@
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,700;12..96,800&family=Archivo:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<script>
+(function () {
+  try {
+    document.documentElement.classList.add(
+      matchMedia('(prefers-reduced-motion: reduce)').matches ? 'pl-skip' : 'preloading'
+    );
+  } catch (e) {
+    document.documentElement.classList.add('preloading');
+  }
+})();
+</script>
 <style>
 :root {
   --paper: #f4efe3;
@@ -62,6 +73,166 @@ body::before {
   pointer-events: none;
   z-index: 0;
 }
+
+#preloader { position: fixed; inset: 0; z-index: 9999; overflow: hidden; }
+html.pl-skip #preloader { display: none; }
+#preloader.split { pointer-events: none; }
+
+.pl-panel {
+  position: absolute;
+  left: 0; right: 0;
+  height: 51%;
+  background: var(--paper);
+  background-image: radial-gradient(circle, rgba(22, 20, 15, 0.13) 1.2px, transparent 1.2px);
+  background-size: 26px 26px;
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+  will-change: transform;
+}
+.pl-top { top: 0; background-position: center top; }
+.pl-bot { bottom: 0; background-position: center bottom; }
+#preloader.split .pl-top { transform: translateY(-100%); }
+#preloader.split .pl-bot { transform: translateY(100%); }
+
+.pl-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  transition: transform 0.5s cubic-bezier(0.66, 0, 0.34, 1), opacity 0.45s ease;
+}
+.pl-stage.out { opacity: 0; transform: scale(1.34); }
+
+.pl-corner {
+  position: absolute;
+  width: 46px; height: 46px;
+  border: 4px solid var(--ink);
+  opacity: 0;
+  animation: plCorner 0.55s 0.12s cubic-bezier(0.2, 1.5, 0.4, 1) forwards;
+}
+.c-tl { top: 8%; left: 7%; border-right: none; border-bottom: none; }
+.c-tr { top: 8%; right: 7%; border-left: none; border-bottom: none; }
+.c-bl { bottom: 8%; left: 7%; border-right: none; border-top: none; }
+.c-br { bottom: 8%; right: 7%; border-left: none; border-top: none; }
+
+.pl-float {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--ink);
+  opacity: 0;
+  animation:
+    plFade 0.6s var(--d, 0.3s) ease both,
+    plBob var(--bd, 4s) var(--bdl, 0s) ease-in-out infinite alternate;
+}
+.pl-sq, .pl-ci, .pl-tok { border: var(--bw) solid var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+.pl-sq { width: 30px; height: 30px; border-radius: 7px; }
+.pl-ci { width: 30px; height: 30px; border-radius: 50%; }
+.pl-tok { padding: 5px 12px; border-radius: 8px; background: var(--card); }
+.pl-glyph { font-size: 34px; font-weight: 800; text-shadow: 3px 3px 0 var(--ink); }
+.f1 { top: 17%; left: 15%; background: var(--cobalt); --d: 0.30s; --bd: 4.2s; }
+.f2 { top: 22%; right: 15%; background: var(--orange); --d: 0.38s; --bd: 3.6s; --bdl: 0.4s; }
+.f3 { bottom: 23%; left: 18%; color: var(--cobalt); --d: 0.46s; --bd: 5s; }
+.f4 { top: 13%; right: 29%; background: var(--butter); --d: 0.34s; --bd: 4.6s; --bdl: 0.2s; }
+.f5 { bottom: 18%; right: 18%; background: var(--mint); --d: 0.50s; --bd: 4s; }
+.f6 { top: 29%; left: 26%; background: var(--blush); --d: 0.42s; --bd: 5.2s; --bdl: 0.6s; }
+.f7 { bottom: 29%; left: 37%; color: var(--orange); --d: 0.54s; --bd: 3.8s; }
+.f8 { top: 12%; left: 44%; width: 18px; height: 18px; background: var(--blush); --d: 0.58s; --bd: 4.4s; }
+@media (max-width: 620px) {
+  .f4, .f6, .f8 { display: none; }
+  .pl-corner { width: 34px; height: 34px; }
+}
+
+.pl-mark {
+  display: flex;
+  gap: clamp(4px, 1.5vw, 16px);
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(108px, 28vw, 232px);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+}
+.pl-mark span { display: inline-block; opacity: 0; }
+.pl-y {
+  color: var(--ink);
+  text-shadow: 8px 9px 0 var(--orange);
+  animation: plPop 0.7s 0.05s cubic-bezier(0.2, 1.8, 0.4, 0.9) forwards;
+}
+.pl-p {
+  color: var(--paper);
+  -webkit-text-stroke: 3px var(--ink);
+  text-shadow: 8px 9px 0 var(--orange);
+  animation: plPop 0.7s 0.19s cubic-bezier(0.2, 1.8, 0.4, 0.9) forwards;
+}
+.pl-loader {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  width: min(78vw, 300px);
+  opacity: 0;
+  animation: plRise 0.6s 0.42s ease forwards;
+}
+.pl-bar {
+  height: 24px;
+  background: var(--card);
+  border: var(--bw) solid var(--ink);
+  border-radius: 99px;
+  box-shadow: 4px 4px 0 var(--ink);
+  overflow: hidden;
+}
+.pl-fill {
+  width: 0;
+  height: 100%;
+  background: var(--orange);
+  border-right: 2px solid var(--ink);
+}
+.pl-meta {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+@keyframes plPop {
+  0% { opacity: 0; transform: translateY(46px) scale(0.78) rotate(-7deg); }
+  60% { opacity: 1; transform: translateY(-8px) scale(1.05) rotate(2deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0); }
+}
+@keyframes plRise {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes plFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes plBob {
+  from { transform: translateY(-7px) rotate(-5deg); }
+  to { transform: translateY(7px) rotate(5deg); }
+}
+@keyframes plCorner {
+  from { opacity: 0; transform: scale(0.4); }
+  to { opacity: 1; transform: scale(1); }
+}
+.pl-mark.stamp { animation: plStamp 0.34s cubic-bezier(0.3, 1.7, 0.4, 1); }
+@keyframes plStamp {
+  0% { transform: scale(1); }
+  45% { transform: scale(1.1) rotate(-1deg); }
+  100% { transform: scale(1) rotate(0); }
+}
+html.preloading .hero h1,
+html.preloading .term,
+html.preloading .hero .role,
+html.preloading .hero .lede,
+html.preloading .hero-actions,
+html.preloading .stats,
+html.preloading .pin-wrap { animation-play-state: paused; }
 
 main { position: relative; z-index: 1; }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
@@ -727,54 +898,80 @@ section { padding: 120px 0; }
 }
 .tl-item li strong { color: var(--ink); font-weight: 700; }
 
-.skills-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-  gap: 22px;
-}
-.skill-card {
-  background: var(--card);
+.term-skills {
   border: var(--bw) solid var(--ink);
-  border-radius: var(--r-md);
-  box-shadow: var(--e1);
-  padding: 26px;
-  transition: transform 0.18s, box-shadow 0.18s;
+  border-radius: var(--r-lg);
+  box-shadow: var(--e3);
+  overflow: hidden;
+  background: var(--ink);
 }
-.skill-card:hover { transform: translate(-3px, -3px) rotate(-0.4deg); box-shadow: var(--e2); }
-.skill-card h3 {
-  display: inline-block;
+.term-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 13px 18px;
+  background: var(--cobalt);
+  border-bottom: var(--bw) solid var(--ink);
+}
+.term-bar i { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid var(--ink); }
+.term-bar i:nth-child(1) { background: var(--orange); }
+.term-bar i:nth-child(2) { background: var(--butter); }
+.term-bar i:nth-child(3) { background: var(--mint); }
+.term-bar span { margin-left: auto; font-family: var(--mono); font-size: 12px; font-weight: 600; color: var(--card); }
+.term-screen {
+  padding: 24px 26px 28px;
   font-family: var(--mono);
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 1.9;
+  color: #d7ded8;
+  min-height: 360px;
+}
+.term-line { white-space: pre-wrap; }
+.t-prompt { color: var(--mint); font-weight: 600; }
+.t-path { color: var(--butter); }
+.t-cmd { color: #eef2ee; }
+.t-comment { color: #8a9a90; }
+.term-dirs { display: flex; flex-wrap: wrap; gap: 10px 14px; margin: 12px 0 4px; }
+.term-dir {
+  font-family: var(--mono);
+  font-size: 14px;
   font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  color: var(--ink);
-  padding: 5px 12px;
-  border: 1.5px solid var(--ink);
-  border-radius: var(--r-sm);
-  box-shadow: 2px 2px 0 var(--ink);
-  margin-bottom: 18px;
-}
-.skill-card:nth-child(1) h3 { background: var(--orange); }
-.skill-card:nth-child(2) h3 { background: var(--butter); }
-.skill-card:nth-child(3) h3 { background: var(--mint); }
-.skill-card:nth-child(4) h3 { background: var(--blush); }
-.skill-card:nth-child(5) h3 { background: var(--cobalt); color: var(--card); }
-.skill-card:nth-child(6) h3 { background: var(--butter); }
-.skill-card:nth-child(7) h3 { background: var(--orange); }
-.skill-tags { display: flex; flex-wrap: wrap; gap: 8px; }
-.skill-tags span {
-  font-family: var(--mono);
-  font-size: 12.5px;
-  font-weight: 600;
-  color: var(--ink-soft);
-  border: 1.5px solid var(--ink);
-  background: var(--paper);
-  padding: 5px 12px;
+  background: transparent;
+  border: 1.5px solid #26312c;
   border-radius: 7px;
-  transition: background 0.15s, color 0.15s, transform 0.15s;
+  padding: 7px 14px;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s, transform 0.15s;
 }
-.skill-tags span:hover { background: var(--ink); color: var(--paper); transform: translateY(-2px); }
+.term-dir.d-orange { color: var(--orange); }
+.term-dir.d-orange:hover { background: var(--orange); color: var(--ink); border-color: var(--orange); }
+.term-dir.d-butter { color: var(--butter); }
+.term-dir.d-butter:hover { background: var(--butter); color: var(--ink); border-color: var(--butter); }
+.term-dir.d-mint { color: var(--mint); }
+.term-dir.d-mint:hover { background: var(--mint); color: var(--ink); border-color: var(--mint); }
+.term-dir.d-blush { color: var(--blush); }
+.term-dir.d-blush:hover { background: var(--blush); color: var(--ink); border-color: var(--blush); }
+.term-dir.d-cobalt { color: #6f8bff; }
+.term-dir.d-cobalt:hover { background: var(--cobalt); color: var(--card); border-color: var(--cobalt); }
+.term-dir:hover { transform: translateY(-2px); }
+.term-out { color: #cfe9dd; }
+.skill-line { padding-left: 2px; }
+.skill-line .k { color: var(--butter); }
+.term-back {
+  display: inline-block;
+  margin-top: 16px;
+  font-family: var(--mono);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--orange);
+  cursor: pointer;
+}
+.term-back:hover { text-decoration: underline; }
+.term-curs { display: inline-block; width: 8px; height: 15px; background: var(--mint); vertical-align: -2px; margin-left: 3px; animation: termBlink 1.1s steps(1) infinite; }
+@keyframes termBlink { 50% { opacity: 0; } }
+@media (max-width: 620px) {
+  .term-screen { padding: 18px 16px 22px; font-size: 12.5px; }
+}
 
 .proj-grid {
   display: grid;
@@ -983,6 +1180,63 @@ footer {
 </head>
 <body>
 
+<div id="preloader">
+  <div class="pl-panel pl-top"></div>
+  <div class="pl-panel pl-bot"></div>
+  <div class="pl-stage" id="plStage">
+    <span class="pl-corner c-tl"></span>
+    <span class="pl-corner c-tr"></span>
+    <span class="pl-corner c-bl"></span>
+    <span class="pl-corner c-br"></span>
+    <span class="pl-float pl-sq f1" aria-hidden="true"></span>
+    <span class="pl-float pl-ci f2" aria-hidden="true"></span>
+    <span class="pl-float pl-glyph f3" aria-hidden="true">+</span>
+    <span class="pl-float pl-tok f4" aria-hidden="true">&lt;/&gt;</span>
+    <span class="pl-float pl-tok f5" aria-hidden="true">{ ; }</span>
+    <span class="pl-float pl-tok f6" aria-hidden="true">0x7F</span>
+    <span class="pl-float pl-glyph f7" aria-hidden="true">✦</span>
+    <span class="pl-float pl-ci f8" aria-hidden="true"></span>
+    <div class="pl-mark" id="plMark" aria-label="YP">
+      <span class="pl-y" aria-hidden="true">Y</span><span class="pl-p" aria-hidden="true">P</span>
+    </div>
+    <div class="pl-loader">
+      <div class="pl-bar"><div class="pl-fill" id="plFill"></div></div>
+      <div class="pl-meta"><span>initializing</span><span id="plPct">000%</span></div>
+    </div>
+  </div>
+</div>
+<script>
+(function () {
+  var html = document.documentElement;
+  var pl = document.getElementById('preloader');
+  if (!pl || !html.classList.contains('preloading')) return;
+  var stage = document.getElementById('plStage');
+  var mark = document.getElementById('plMark');
+  var fill = document.getElementById('plFill');
+  var pct = document.getElementById('plPct');
+  var start = null, DUR = 1650;
+  var easeOut = function (t) { return 1 - Math.pow(1 - t, 3); };
+  function tick(ts) {
+    if (start === null) start = ts;
+    var t = Math.min((ts - start) / DUR, 1);
+    var p = Math.round(easeOut(t) * 100);
+    fill.style.width = p + '%';
+    pct.textContent = String(p).padStart(3, '0') + '%';
+    if (t < 1) requestAnimationFrame(tick);
+    else { mark.classList.add('stamp'); setTimeout(exit, 320); }
+  }
+  function exit() {
+    stage.classList.add('out');
+    pl.classList.add('split');
+    html.classList.remove('preloading');
+    var bot = pl.querySelector('.pl-bot');
+    bot.addEventListener('transitionend', function () { pl.style.display = 'none'; }, { once: true });
+    setTimeout(function () { pl.style.display = 'none'; }, 1500);
+  }
+  requestAnimationFrame(tick);
+})();
+</script>
+
 <nav>
   <div class="nav-inner">
     <a class="logo" href="#top">yp@tampa:~$</a>
@@ -1163,35 +1417,9 @@ footer {
         <h2>Skills</h2>
         <div class="rule"></div>
       </div>
-      <div class="skills-grid">
-        <div class="skill-card reveal">
-          <h3>Languages</h3>
-          <div class="skill-tags"><span>C</span><span>C++ (STL, RAII, templates)</span><span>Python</span><span>Java</span></div>
-        </div>
-        <div class="skill-card reveal">
-          <h3>Concurrency &amp; Systems</h3>
-          <div class="skill-tags"><span>Distributed Systems</span><span>Multithreading</span><span>Mutex</span><span>Lock-free</span><span>Memory Management</span><span>Performance Tuning</span><span>System Design</span></div>
-        </div>
-        <div class="skill-card reveal">
-          <h3>Databases</h3>
-          <div class="skill-tags"><span>PostgreSQL</span><span>MySQL</span><span>Query Optimization</span><span>Data Partitioning</span></div>
-        </div>
-        <div class="skill-card reveal">
-          <h3>Backend</h3>
-          <div class="skill-tags"><span>REST APIs</span><span>Node.js</span><span>Flask</span></div>
-        </div>
-        <div class="skill-card reveal">
-          <h3>High-Perf Computing</h3>
-          <div class="skill-tags"><span>OpenCL</span><span>CUDA (basic)</span><span>GPU Optimization</span></div>
-        </div>
-        <div class="skill-card reveal">
-          <h3>Tools</h3>
-          <div class="skill-tags"><span>Git</span><span>Linux (Ubuntu)</span><span>Bash</span><span>GDB</span><span>Valgrind</span><span>CMake</span><span>Docker</span></div>
-        </div>
-        <div class="skill-card reveal">
-          <h3>AI / ML</h3>
-          <div class="skill-tags"><span>PyTorch</span><span>Transformers</span><span>Knowledge Distillation</span><span>LoRA</span></div>
-        </div>
+      <div class="term-skills reveal">
+        <div class="term-bar"><i></i><i></i><i></i><span>yp@tampa: ~/skills — zsh</span></div>
+        <div class="term-screen" id="termScreen"></div>
       </div>
     </div>
   </section>
@@ -1225,14 +1453,14 @@ footer {
           <div class="proj-meta"><span>Knowledge Distillation</span><span>LoRA</span><span>BERT / DistilBERT</span></div>
         </a>
 
-        <a class="proj reveal" href="https://github.com/PathipatiYashwanthSai/EEG-Mild-Moderate-TBI-Classification" target="_blank" rel="noopener">
+        <a class="proj reveal" href="https://github.com/PathipatiYashwanthSai/Memory-Management-Framework" target="_blank" rel="noopener">
           <div class="proj-top">
-            <span class="tag">Full-Stack ML</span>
+            <span class="tag">Systems</span>
             <span class="arrow"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17 17 7M7 7h10v10"/></svg></span>
           </div>
-          <h3>EEG TBI Classification</h3>
-          <p>End-to-end React + Flask pipeline classifying traumatic brain injuries from EEG signals with an ML model, processing multi-channel time-series data and serving real-time predictions via REST API, with modular backend inference logic and an integrated visualization dashboard for clinical data review.</p>
-          <div class="proj-meta"><span>React</span><span>Flask</span><span>Full-Stack ML</span></div>
+          <h3>Memory Management Framework</h3>
+          <p>A C++ memory management framework inspired by PostgreSQL's memory context system — hierarchical contexts let you allocate from active contexts, switch between them, reuse freed chunks, and recursively tear down entire context trees. Each allocation stores metadata for ownership tracking with 8-byte aligned payloads, retaining released chunks for reuse until the owning context is deleted. C++ templates add typed object construction/destruction for RAII-aware lifecycle management on top of raw allocation.</p>
+          <div class="proj-meta"><span>C++</span><span>Custom Allocators</span><span>Memory Management</span><span>RAII</span></div>
         </a>
 
         <a class="proj reveal" href="https://github.com/PathipatiYashwanthSai/DSP-Algorithms" target="_blank" rel="noopener">
@@ -1304,7 +1532,7 @@ footer {
 <script>
 (function () {
   const out = document.getElementById("typed");
-  const text = "  yashwanthsai · systems engineer";
+  const text = "  yashwanthsai · software engineer";
   let i = 0;
   setTimeout(function tick() {
     if (i < text.length) {
@@ -1414,6 +1642,88 @@ sections.forEach((id) => {
   const el = document.getElementById(id);
   if (el) secObs.observe(el);
 });
+</script>
+
+<script>
+(function () {
+  var screen = document.getElementById('termScreen');
+  if (!screen) return;
+  var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var DATA = [
+    ['languages', 'orange', ['C', 'C++ (STL, RAII, templates)', 'Python', 'Java']],
+    ['concurrency', 'butter', ['Distributed Systems', 'Multithreading', 'Mutex', 'Lock-free', 'Memory Management', 'Performance Tuning', 'System Design']],
+    ['databases', 'mint', ['PostgreSQL', 'MySQL', 'Query Optimization', 'Data Partitioning']],
+    ['backend', 'blush', ['REST APIs', 'Node.js', 'Flask']],
+    ['hpc', 'cobalt', ['OpenCL', 'CUDA (basic)', 'GPU Optimization']],
+    ['tools', 'butter', ['Git', 'Linux (Ubuntu)', 'Bash', 'GDB', 'Valgrind', 'CMake', 'Docker']],
+    ['ai-ml', 'orange', ['PyTorch', 'Transformers', 'Knowledge Distillation', 'LoRA']]
+  ];
+  var timer = null;
+
+  function listing() {
+    if (timer) { clearTimeout(timer); timer = null; }
+    screen.innerHTML = '';
+    var cmd = document.createElement('div');
+    cmd.className = 'term-line';
+    cmd.innerHTML = '<span class="t-prompt">yp@tampa</span>:<span class="t-path">~/skills</span>$ <span class="t-cmd">ls -d */</span>';
+    screen.appendChild(cmd);
+    var dirs = document.createElement('div');
+    dirs.className = 'term-dirs';
+    DATA.forEach(function (d) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'term-dir d-' + d[1];
+      b.textContent = d[0] + '/';
+      b.addEventListener('click', function () { open(d); });
+      dirs.appendChild(b);
+    });
+    screen.appendChild(dirs);
+    var hint = document.createElement('div');
+    hint.className = 'term-line t-comment';
+    hint.innerHTML = '# ' + DATA.length + ' directories · click one to inspect<span class="term-curs"></span>';
+    screen.appendChild(hint);
+  }
+
+  function open(d) {
+    if (timer) { clearTimeout(timer); timer = null; }
+    screen.innerHTML = '';
+    var cmd = document.createElement('div');
+    cmd.className = 'term-line';
+    cmd.innerHTML = '<span class="t-prompt">yp@tampa</span>:<span class="t-path">~/skills/' + d[0] + '</span>$ <span class="t-cmd">cat *.skill</span>';
+    screen.appendChild(cmd);
+    var body = document.createElement('div');
+    screen.appendChild(body);
+    var items = d[2], i = 0;
+    function row(text) {
+      var r = document.createElement('div');
+      r.className = 'term-line term-out skill-line';
+      r.innerHTML = '<span class="k">›</span> ' + text;
+      body.appendChild(r);
+      return r;
+    }
+    function finish() {
+      var back = document.createElement('div');
+      back.className = 'term-back';
+      back.textContent = '‹ cd ..';
+      back.addEventListener('click', listing);
+      screen.appendChild(back);
+    }
+    if (reduce) { items.forEach(row); finish(); return; }
+    (function type() {
+      if (i < items.length) {
+        var r = row(items[i]);
+        r.style.opacity = 0;
+        r.style.transform = 'translateX(-6px)';
+        r.style.transition = 'opacity .25s, transform .25s';
+        requestAnimationFrame(function () { r.style.opacity = 1; r.style.transform = 'none'; });
+        i++;
+        timer = setTimeout(type, 120);
+      } else { finish(); }
+    })();
+  }
+
+  listing();
+})();
 </script>
 
 </body>
