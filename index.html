@@ -234,6 +234,103 @@ html.preloading .hero-actions,
 html.preloading .stats,
 html.preloading .pin-wrap { animation-play-state: paused; }
 
+.term-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: clamp(12px, 3vw, 40px);
+  background: rgba(10, 12, 10, 0.55);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+.term-modal.open { display: flex; animation: termFade 0.2s ease; }
+@keyframes termFade { from { opacity: 0; } to { opacity: 1; } }
+.term-win {
+  width: min(1080px, 100%);
+  height: min(86vh, 760px);
+  display: flex;
+  flex-direction: column;
+  background: #0e1411;
+  border: var(--bw) solid var(--ink);
+  border-radius: 14px;
+  box-shadow: 14px 14px 0 var(--orange), 0 0 0 2px var(--ink);
+  overflow: hidden;
+  animation: termPop 0.26s cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+@keyframes termPop { from { transform: translateY(16px) scale(0.97); opacity: 0; } to { transform: none; opacity: 1; } }
+.term-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--cobalt);
+  border-bottom: var(--bw) solid var(--ink);
+  flex: none;
+}
+.term-head i { width: 13px; height: 13px; border-radius: 50%; border: 1.5px solid var(--ink); }
+.term-head i:nth-child(1) { background: var(--orange); }
+.term-head i:nth-child(2) { background: var(--butter); }
+.term-head i:nth-child(3) { background: var(--mint); }
+.term-head .ttl { margin-left: auto; font-family: var(--mono); font-size: 12.5px; font-weight: 600; color: var(--card); }
+.term-x {
+  margin-left: 14px;
+  width: 26px; height: 26px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono); font-size: 14px; font-weight: 700;
+  color: var(--ink); background: var(--orange);
+  border: 1.5px solid var(--ink); border-radius: 6px;
+  cursor: pointer; flex: none;
+  transition: transform 0.12s;
+}
+.term-x:hover { transform: translateY(-1px); }
+.term-x:active { transform: translateY(1px); }
+.term-scroll {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 22px 22px;
+  font-family: var(--mono);
+  font-size: 14px;
+  line-height: 1.75;
+  color: #c7d4cc;
+}
+.term-scroll::-webkit-scrollbar { width: 10px; }
+.term-scroll::-webkit-scrollbar-thumb { background: #2a3530; border-radius: 6px; }
+.term-banner { color: var(--orange); font-size: 13px; line-height: 1.05; margin-bottom: 6px; overflow-x: auto; white-space: pre; }
+.term-sub { color: #7e8c84; }
+.term-sub b { color: #aab8af; font-weight: 600; }
+.term-rule { color: #2a3530; }
+.term-out { white-space: pre-wrap; word-break: break-word; }
+.term-out .ps { color: var(--mint); font-weight: 600; }
+.term-out .cmd { color: #eef2ee; }
+.term-out .h { color: var(--butter); font-weight: 700; }
+.term-out .key { color: var(--mint); }
+.term-out .val { color: #c7d4cc; }
+.term-out .acc { color: var(--orange); }
+.term-out .mut { color: #7e8c84; }
+.term-out a { color: #6f8bff; text-decoration: none; }
+.term-out a:hover { text-decoration: underline; }
+.term-inputline { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.term-inputline .ps { color: var(--mint); font-weight: 600; flex: none; }
+.term-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #eef2ee;
+  font-family: var(--mono);
+  font-size: 14px;
+  caret-color: var(--orange);
+  padding: 0;
+}
+@media (max-width: 600px) {
+  .term-win { height: 92vh; }
+  .term-scroll { font-size: 12.5px; padding: 16px; }
+  .term-banner { font-size: 9px; }
+}
+
 main { position: relative; z-index: 1; }
 .wrap { max-width: 1080px; margin: 0 auto; padding: 0 28px; }
 
@@ -1246,6 +1343,7 @@ footer {
       <a href="#skills">skills</a>
       <a href="#projects">projects</a>
       <a href="#education">education</a>
+      <a href="#" id="navTerm">terminal</a>
       <a class="nav-cta" href="#contact">get in touch</a>
     </div>
   </div>
@@ -1268,6 +1366,7 @@ footer {
       <div class="hero-actions">
         <a class="btn btn-solid" href="#contact">Get in touch</a>
         <a class="btn btn-ghost" href="#projects">View projects</a>
+        <button class="btn btn-alt" id="termOpenBtn" type="button">$ ./about_me.sh</button>
         <div class="hero-social">
           <a href="https://github.com/PathipatiYashwanthSai" target="_blank" rel="noopener" aria-label="GitHub">
             <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .3a12 12 0 0 0-3.8 23.4c.6.1.8-.3.8-.6v-2c-3.3.7-4-1.6-4-1.6-.6-1.4-1.4-1.8-1.4-1.8-1-.7.1-.7.1-.7 1.2.1 1.9 1.2 1.9 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.7-.3-5.5-1.3-5.5-5.9 0-1.3.5-2.4 1.2-3.2-.1-.3-.5-1.5.1-3.2 0 0 1-.3 3.3 1.2a11.5 11.5 0 0 1 6 0C17.3 4.7 18.3 5 18.3 5c.6 1.7.2 2.9.1 3.2.8.8 1.2 1.9 1.2 3.2 0 4.6-2.8 5.6-5.5 5.9.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6A12 12 0 0 0 12 .3"/></svg>
@@ -1529,6 +1628,23 @@ footer {
   </div>
 </footer>
 
+<div class="term-modal" id="termModal" role="dialog" aria-modal="true" aria-label="About me terminal">
+  <div class="term-win">
+    <div class="term-head">
+      <i></i><i></i><i></i>
+      <span class="ttl">yp@tampa: ~/about</span>
+      <button class="term-x" id="termClose" type="button" aria-label="Close terminal">✕</button>
+    </div>
+    <div class="term-scroll" id="termScrollOut">
+      <div class="term-out" id="termOutput"></div>
+      <div class="term-inputline">
+        <span class="ps">➜&nbsp;~</span>
+        <input class="term-input" id="termCmd" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Terminal command input" />
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 (function () {
   const out = document.getElementById("typed");
@@ -1723,6 +1839,199 @@ sections.forEach((id) => {
   }
 
   listing();
+})();
+</script>
+
+<script>
+(function () {
+  var modal = document.getElementById('termModal');
+  if (!modal) return;
+  var out = document.getElementById('termOutput');
+  var scroll = document.getElementById('termScrollOut');
+  var input = document.getElementById('termCmd');
+  var history = [], hIdx = 0, booted = false;
+
+  var BANNER = String.raw`__   __    _     ____   _   _
+\ \ / /   / \   / ___| | | | |
+ \ V /   / _ \  \___ \ | |_| |
+  | |   / ___ \  ___) ||  _  |
+  |_|  /_/   \_\|____/ |_| |_|`;
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function print(html) { var d = document.createElement('div'); d.innerHTML = html; out.appendChild(d); }
+  function bottom() { scroll.scrollTop = scroll.scrollHeight; }
+
+  var CMD = {
+    help: function () {
+      return '<span class="h">Available commands</span>\n' +
+        '  <span class="key">about</span>       professional summary\n' +
+        '  <span class="key">whoami</span>      the short version\n' +
+        '  <span class="key">skills</span>      technical expertise\n' +
+        '  <span class="key">experience</span>  work history\n' +
+        '  <span class="key">education</span>   degrees &amp; GPA\n' +
+        '  <span class="key">projects</span>    selected work\n' +
+        '  <span class="key">contact</span>     how to reach me\n' +
+        '  <span class="key">social</span>      github &amp; linkedin\n' +
+        '  <span class="key">resume</span>      download my resume\n' +
+        '  <span class="key">ls</span>          list sections\n' +
+        '  <span class="key">clear</span>       clear the screen\n' +
+        '  <span class="key">exit</span>        close the terminal\n' +
+        '<span class="mut">tip: press Tab to autocomplete, ↑/↓ for history, Esc to close</span>';
+    },
+    about: function () {
+      return '<span class="h">about</span>\n' +
+        'Software Engineer with <span class="acc">1.5+ years of production C/C++</span> experience building\n' +
+        'high-performance distributed systems and database infrastructure at\n' +
+        '<span class="acc">Zoho Corporation</span> — where I shipped a PostgreSQL extension for horizontal\n' +
+        'sharding across worker nodes, with deep focus in memory management, query\n' +
+        'optimization, multithreading, and low-level performance profiling.\n\n' +
+        'Recently completed my <span class="acc">M.S. in Computer Science</span> at the University of South\n' +
+        'Florida (<span class="acc">3.97 GPA</span>). Based in Tampa, Florida.';
+    },
+    whoami: function () {
+      return 'yashwanthsai · software engineer · C/C++ systems &amp; distributed infrastructure · Tampa, FL';
+    },
+    skills: function () {
+      var groups = [
+        ['Languages', 'C, C++ (STL, RAII, templates), Python, Java'],
+        ['Concurrency &amp; Systems', 'Distributed Systems, Multithreading, Mutex, Lock-free, Memory Management, Performance Tuning, System Design'],
+        ['Databases', 'PostgreSQL, MySQL, Query Optimization, Data Partitioning'],
+        ['Backend', 'REST APIs, Node.js, Flask'],
+        ['High-Perf Computing', 'OpenCL, CUDA (basic), GPU Optimization'],
+        ['Tools', 'Git, Linux (Ubuntu), Bash, GDB, Valgrind, CMake, Docker'],
+        ['AI / ML', 'PyTorch, Transformers, Knowledge Distillation, LoRA']
+      ];
+      return '<span class="h">skills</span>\n' + groups.map(function (g) {
+        return '  <span class="key">' + g[0] + '</span>\n    <span class="val">' + g[1] + '</span>';
+      }).join('\n');
+    },
+    experience: function () {
+      return '<span class="h">experience</span>\n' +
+        '<span class="acc">Member Technical Staff</span> · Zoho Corporation · <span class="mut">Feb 2023 – Jul 2024</span>\n' +
+        '  › Shipped a production PostgreSQL extension in C for hash-based horizontal\n' +
+        '    sharding across 4+ worker nodes (~60% less single-node query load).\n' +
+        '  › Cut query latency ~35% via GDB/Valgrind profiling; +25% cluster throughput\n' +
+        '    by redesigning shard-key routing and rebalancing.\n' +
+        '  › Mutex-based concurrency controls on the logical replication / WAL pipeline;\n' +
+        '    led zero-downtime migrations with 100% uptime.\n\n' +
+        '<span class="acc">Web Developer Intern</span> · ZettaByte SoftTech · <span class="mut">May 2022 – Aug 2022</span>\n' +
+        '  › Built 5+ REST APIs in Node.js; ~25% faster app via JS performance work.';
+    },
+    education: function () {
+      return '<span class="h">education</span>\n' +
+        '<span class="acc">M.S. Computer Science</span> · University of South Florida · <span class="mut">2024 – 2026</span>\n' +
+        '  GPA 3.97 / 4.00\n' +
+        '<span class="acc">B.Tech ECE</span> · Sri Venkateswara University College of Eng. · <span class="mut">2019 – 2023</span>\n' +
+        '  GPA 8.34 / 10.00';
+    },
+    projects: function () {
+      return '<span class="h">projects</span>\n' +
+        '  <span class="key">Mini Distributed PostgreSQL Extension</span>  <span class="mut">C · PostgreSQL · Docker</span>\n' +
+        '    Hash-based sharding across Dockerized worker nodes with query routing.\n' +
+        '    <a href="https://github.com/PathipatiYashwanthSai/mini-distributed-postgres" target="_blank" rel="noopener">github.com/…/mini-distributed-postgres</a>\n' +
+        '  <span class="key">Memory Management Framework</span>  <span class="mut">C++ · RAII</span>\n' +
+        '    PostgreSQL-inspired hierarchical memory contexts &amp; custom allocators.\n' +
+        '    <a href="https://github.com/PathipatiYashwanthSai/Memory-Management-Framework" target="_blank" rel="noopener">github.com/…/Memory-Management-Framework</a>\n' +
+        '  <span class="key">Sentiment Analysis · Knowledge Distillation &amp; LoRA</span>  <span class="mut">PyTorch</span>\n' +
+        '    Distilled BERT → DistilBERT: 46% faster, 90% acc / 91% F1 on SST-2.\n' +
+        '    <a href="https://github.com/PathipatiYashwanthSai/Sentiment-Analysis-Using-Knowledge-Distillation" target="_blank" rel="noopener">github.com/…/Sentiment-Analysis</a>\n' +
+        '  <span class="key">DSP Learning Platform</span>  <span class="mut">React · Flask</span>\n' +
+        '    Interactive FFT, convolution &amp; digital filtering with real-time output.\n' +
+        '    <a href="https://github.com/PathipatiYashwanthSai/DSP-Algorithms" target="_blank" rel="noopener">github.com/…/DSP-Algorithms</a>';
+    },
+    contact: function () {
+      return '<span class="h">contact</span>\n' +
+        '  <span class="key">email</span>     <a href="mailto:yashwanthsaipathipati@gmail.com">yashwanthsaipathipati@gmail.com</a>\n' +
+        '  <span class="key">linkedin</span>  <a href="https://linkedin.com/in/yashwanthsai-pathipati/" target="_blank" rel="noopener">linkedin.com/in/yashwanthsai-pathipati</a>\n' +
+        '  <span class="key">github</span>    <a href="https://github.com/PathipatiYashwanthSai" target="_blank" rel="noopener">github.com/PathipatiYashwanthSai</a>\n' +
+        '  <span class="key">location</span>  Tampa, Florida';
+    },
+    social: function () { return CMD.contact().replace('<span class="h">contact</span>', '<span class="h">social</span>'); },
+    resume: function () {
+      var url = 'assets/Yashwanthsai_Pathipati_Resume.pdf';
+      var a = document.createElement('a');
+      a.href = url;
+      a.download = 'Yashwanthsai_Pathipati_Resume.pdf';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      return '<span class="h">resume</span>\n' +
+        '<span class="mut">downloading</span> <span class="acc">Yashwanthsai_Pathipati_Resume.pdf</span> <span class="mut">…</span>\n' +
+        'if the download didn\'t start, <a href="' + url + '" target="_blank" rel="noopener">click here</a>.';
+    },
+    cv: function () { return CMD.resume(); },
+    download: function () { return CMD.resume(); },
+    ls: function () {
+      return '<span class="key">about/</span>  <span class="key">skills/</span>  <span class="key">experience/</span>  <span class="key">education/</span>  <span class="key">projects/</span>  <span class="key">contact/</span>';
+    },
+    clear: function () { out.innerHTML = ''; return null; },
+    exit: function () { close(); return null; },
+    close: function () { close(); return null; }
+  };
+  var NAMES = Object.keys(CMD).filter(function (n) { return n !== 'close'; });
+
+  function run(raw) {
+    var cmd = raw.trim();
+    print('<span class="ps">➜&nbsp;~</span> <span class="cmd">' + esc(cmd) + '</span>');
+    if (!cmd) { bottom(); return; }
+    history.push(cmd); hIdx = history.length;
+    var name = cmd.split(/\s+/)[0].toLowerCase();
+    if (CMD[name]) {
+      var res = CMD[name]();
+      if (res !== null) print('<div style="margin:2px 0 14px">' + res + '</div>');
+    } else {
+      print('<div style="margin:2px 0 14px"><span class="acc">command not found:</span> ' + esc(name) + ' — type <span class="key">help</span></div>');
+    }
+    bottom();
+  }
+
+  function boot() {
+    if (booted) return;
+    booted = true;
+    print('<div class="term-banner">' + esc(BANNER) + '</div>');
+    print('<div class="term-rule">────────────────────────────────────────────</div>');
+    print('<div class="term-sub">Interactive Terminal · <b>About Me</b></div>');
+    print('<div class="term-sub">Software Engineer · C/C++ Systems · Distributed Infrastructure</div>');
+    print('<div class="term-rule" style="margin-bottom:12px">────────────────────────────────────────────</div>');
+    print('<div class="term-sub">Type <span class="key" style="color:var(--mint)">help</span> to see available commands · <span class="key" style="color:var(--mint)">Tab</span> to autocomplete · <span class="key" style="color:var(--mint)">Esc</span> to close</div>');
+    print('<div style="height:8px"></div>');
+  }
+
+  function open() {
+    boot();
+    modal.classList.add('open');
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { input.focus(); bottom(); }, 30);
+  }
+  function close() {
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  input.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { run(input.value); input.value = ''; }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); if (hIdx > 0) { hIdx--; input.value = history[hIdx] || ''; } }
+    else if (e.key === 'ArrowDown') { e.preventDefault(); if (hIdx < history.length) { hIdx++; input.value = history[hIdx] || ''; } }
+    else if (e.key === 'Tab') {
+      e.preventDefault();
+      var v = input.value.trim().toLowerCase();
+      if (!v) return;
+      var m = NAMES.filter(function (n) { return n.indexOf(v) === 0; });
+      if (m.length === 1) input.value = m[0];
+      else if (m.length > 1) { print('<div class="mut" style="margin:2px 0 8px">' + m.join('   ') + '</div>'); bottom(); }
+    }
+  });
+
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && modal.classList.contains('open')) close(); });
+  modal.addEventListener('mousedown', function (e) { if (e.target === modal) close(); });
+  document.querySelector('.term-win').addEventListener('click', function (e) {
+    if (window.getSelection().toString() === '' && e.target.tagName !== 'A') input.focus();
+  });
+  document.getElementById('termClose').addEventListener('click', close);
+  var btn = document.getElementById('termOpenBtn');
+  if (btn) btn.addEventListener('click', open);
+  var navLink = document.getElementById('navTerm');
+  if (navLink) navLink.addEventListener('click', function (e) { e.preventDefault(); open(); });
 })();
 </script>
 
