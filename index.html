@@ -1648,14 +1648,46 @@ footer {
 <script>
 (function () {
   const out = document.getElementById("typed");
-  const text = "  yashwanthsai · software engineer";
-  let i = 0;
-  setTimeout(function tick() {
-    if (i < text.length) {
-      out.textContent += text[i++];
-      setTimeout(tick, 38);
+  if (!out) return;
+  const PREFIX = "  yashwanthsai · ";
+  const ROLES = [
+    "software engineer",
+    "systems engineer",
+    "backend engineer",
+    "database engineer"
+  ];
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    out.textContent = PREFIX + ROLES[0];
+    return;
+  }
+  const role = document.createElement("span");
+  role.style.color = "var(--ink)";
+  role.style.fontWeight = "600";
+
+  let pi = 0;
+  setTimeout(function typePrefix() {
+    if (pi < PREFIX.length) {
+      out.textContent = PREFIX.slice(0, ++pi);
+      setTimeout(typePrefix, 38);
+    } else {
+      out.appendChild(role);
+      loopRoles();
     }
   }, 900);
+
+  let ri = 0, ci = 0, deleting = false;
+  function loopRoles() {
+    const word = ROLES[ri];
+    if (!deleting) {
+      role.textContent = word.slice(0, ++ci);
+      if (ci === word.length) { deleting = true; setTimeout(loopRoles, 1600); return; }
+      setTimeout(loopRoles, 65 + Math.random() * 45);
+    } else {
+      role.textContent = word.slice(0, --ci);
+      if (ci === 0) { deleting = false; ri = (ri + 1) % ROLES.length; setTimeout(loopRoles, 320); return; }
+      setTimeout(loopRoles, 35);
+    }
+  }
 })();
 
 (function () {
